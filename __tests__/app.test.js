@@ -1,8 +1,7 @@
 import request from "supertest";
 import { describe, expect, it, test } from "vitest";
-
-import app from "#app";
-import employees from "#db/employees";
+import app from "../app.js";
+import employees from "../db/employees.js";
 
 describe("Express app", () => {
   it("is defined", () => {
@@ -54,33 +53,30 @@ describe("GET /employees/random", () => {
       const employee2 = await request(app).get("/employees/random");
       expect(employee1.body).not.toEqual(employee2.body);
     } catch (e) {
-      e.message += `
-        There is a small chance that the same employee is sent twice in a row,
-        which will cause this test to fail. Try running the test again!
-        This test should pass most of the time.
-      `;
+      e.message +=
+        " There is a small chance that the same employee is sent twice in a row, which will cause this test to fail. Try running the test again! This test should pass most of the time.";
       throw e;
     }
   });
 });
 
 describe("POST /employees", () => {
-  it("sends 400 if request body is not provided", async (req, res) => {
+  it("sends 400 if request body is not provided", async () => {
     const response = await request(app).post("/employees");
     expect(response.status).toBe(400);
   });
 
-  it("sends 400 if name is not provided", async (req, res) => {
+  it("sends 400 if name is not provided", async () => {
     const response = await request(app).post("/employees").send({});
     expect(response.status).toBe(400);
   });
 
-  it("sends 400 if an empty name is provided", async (req, res) => {
+  it("sends 400 if an empty name is provided", async () => {
     const response = await request(app).post("/employees").send({ name: "" });
     expect(response.status).toBe(400);
   });
 
-  it("sends new employee with status 201 if name is provided", async (req, res) => {
+  it("sends new employee with status 201 if name is provided", async () => {
     const name = "Amazing Employee";
     const response = await request(app).post("/employees").send({ name });
     expect(response.status).toBe(201);
@@ -89,7 +85,7 @@ describe("POST /employees", () => {
     expect(response.body.name).toBe(name);
   });
 
-  it("creates an employee with a unique ID", async (req, res) => {
+  it("creates an employee with a unique ID", async () => {
     await request(app).post("/employees").send({ name: "foo" });
     const ids = new Set();
     employees.forEach((e) => ids.add(e.id));
